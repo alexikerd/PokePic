@@ -59,10 +59,13 @@ for pokemon in pokemons:
     
     name_pkg = pokemon.find_element_by_tag_name("a")
     name = name_pkg.get_attribute("href").replace('https://www.pokemon.com/us/pokedex/','')
- 
+    name = name.replace('-',' ')
+
     location_pkg = pokemon.find_element_by_tag_name("img")
     location = location_pkg.get_attribute("src")
+    number = location.replace('https://assets.pokemon.com/assets/cms2/img/pokedex/detail/','')
     
-    urllib.request.urlretrieve(location,"Pictures/"+str(name).title()+".png")
+    urllib.request.urlretrieve(location,"Pictures/"+str(name).title()+" " + number)
 
 browser.close()
+

@@ -346,6 +346,10 @@ class Pokedex(tk.Frame):
 		self.reset.configure(height=0,width=10,activebackground = "gray", relief = FLAT)
 		self.reset_window = self.canvas.create_window(0.89*WIN_WIDTH, 0.06*WIN_HEIGHT, anchor=CENTER, window=self.reset)
 
+		self.delete = tk.Button(self,text='Delete Entry',padx=5,command=self.popdown)
+		self.delete.configure(height=0,width=10,activebackground = "gray", relief = FLAT)
+		self.delete_window = self.canvas.create_window(0.73*WIN_WIDTH, 0.06*WIN_HEIGHT, anchor=CENTER, window=self.delete)
+
 		self.entry = tk.Entry(self,font=64)
 		self.entry.configure()
 		self.entry_window = self.canvas.create_window(0.45*WIN_WIDTH, 0.25*WIN_HEIGHT, anchor=CENTER,window=self.entry)
@@ -377,8 +381,10 @@ class Pokedex(tk.Frame):
 
 		def reset():
 
-			self.controller.facelist = [np.nan for i in self.controller.facelist]
+			self.controller.facelist = [np.nan for _ in self.controller.facelist]
+			self.tempfacelist = [np.nan for _ in self.tempfacelist]
 			self.controller.pokedex["face"] = self.controller.facelist
+			self.tempdex["face"] = self.tempfacelist
 			pickle.dump(self.controller.pokedex, open("Models/pokedf.pkl","wb"))
 
 			self.update_display()
@@ -403,6 +409,41 @@ class Pokedex(tk.Frame):
 
 		pop.mainloop()
 
+
+	def popdown(self):
+
+		def leave():
+			pop.destroy()
+
+		def reset():
+
+			self.controller.facelist[self.index] = np.nan
+			self.controller.pokedex["face"] = self.controller.facelist
+			self.tempfacelist[self.index] = np.nan
+			self.tempdex["face"] = self.tempfacelist
+			pickle.dump(self.controller.pokedex, open("Models/pokedf.pkl","wb"))
+
+			self.update_display()
+			
+			pop.destroy()
+
+
+		pop = tk.Toplevel()
+		pop.wm_title('!')
+		pop.configure(bg='red')
+
+		label = Label(pop,text='This will delete the saved photo for this pokemon.  Are you sure you want to do this?',foreground='white',background='black')
+		label.pack()
+
+		yes = tk.Button(pop,text='Yes',command=reset)
+		yes.configure(width=7)
+		yes.pack()
+
+		no = tk.Button(pop,text='No',command=leave)
+		no.configure(width=7)
+		no.pack()
+
+		pop.mainloop()
 
 
 	def query(self,text):
@@ -435,6 +476,7 @@ class Pokedex(tk.Frame):
 				self.tempfacelist = [face for face in iter(self.tempdex["face"])]
 				self.index = 0
 
+
 				self.update_display()
 
 
@@ -464,7 +506,7 @@ class Pokedex(tk.Frame):
 	def update_display(self):
 
 		if type(self.tempfacelist[self.index])==np.ndarray:
-			self.personpic = ImageTk.PhotoImage(image=Image.fromarray(self.controller.facelist[self.index]).resize((215,215)))
+			self.personpic = ImageTk.PhotoImage(image=Image.fromarray(self.tempfacelist[self.index]).resize((215,215)))
 		
 		else:
 			self.personpic = ImageTk.PhotoImage(image=self.controller.avatar)
